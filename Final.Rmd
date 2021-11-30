@@ -1,0 +1,181 @@
+---
+title: "final"
+author: "Benkhouya Mouad"
+date: "06/12/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(Amelia)
+library(lubridate)
+library(ggplot2) 
+```
+
+
+```{r}
+df<-retail_data
+head(df)
+```
+```{r}
+summary(df)
+dim(df)
+head(df)
+tail(df)
+```
+
+
+```{r}
+names(df)[2] <- "store"
+names(df)[3] <- "Date"
+names(df)[4] <- "Holiday"
+names(df)[5] <- "Type"
+names(df)[6] <- "size"
+names(df)[7] <- "Dept"
+names(df)[8] <- "Sales"
+names(df)[9] <- "Temp"
+names(df)[10] <- "Fuel_Price"
+names(df)[11] <- "Promotion1"
+names(df)[12] <- "Promotion2"
+names(df)[13] <- "Promotion3"
+names(df)[14] <- "Promotion4"
+names(df)[15] <- "Promotion5"
+names(df)[16] <- "CPI"
+names(df)[17] <- "Unemployement"
+head(df)
+```
+
+
+```{r}
+library(Amelia)
+missmap(df)
+```
+```{r}
+library(lubridate)
+df$Date<-as.Date(df$Date,"%d/%m/%Y")
+head(df)
+```
+```{r}
+df<-df[(-1),]
+df<-df[,(-1)]
+head(df)
+```
+```{r}
+df$store<-as.numeric(as.character(df$store))
+df$size<-as.numeric(as.character(df$size))
+df$Temp<-as.numeric(as.character(df$Temp))
+df$Sales<-as.numeric(as.character(df$Sales))
+df$Fuel_Price<-as.numeric(as.character(df$Fuel_Price))
+df$Promotion1<-as.numeric(as.character(df$Promotion1))
+df$Promotion2<-as.numeric(as.character(df$Promotion2))
+df$Promotion3<-as.numeric(as.character(df$Promotion3))
+df$Promotion4<-as.numeric(as.character(df$Promotion4))
+df$Promotion5<-as.numeric(as.character(df$Promotion5))
+head(df)
+```
+
+
+```{r}
+typeof(df$Holiday)
+```
+```{r}
+df<-mutate(df,month=month(df$Date))
+df$month<-recode_factor(month(df$Date),
+  "1" = "Jan",
+  "2" = "Feb",
+  "3" = "Mar",
+  "4" = "Apr",
+  "5" = "May",
+  "6" = "Jun",
+  "7" = "Jul",
+  "8" = "Aug",
+  "9" = "Sep",
+  "10" = "Oct",
+  "11" = "Nov",
+  "12" = "Dec")
+head(df)
+```
+
+
+```{r}
+df<-mutate(df,year=year(df$Date))
+df<-mutate(df,week=week(df$Date))
+head(df)
+
+```
+
+```{r}
+df%>%group_by(month,Type)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=month,y=mean.Sales,fill=month))  + geom_bar(stat = "identity", width=0.2)
+```
+```{r}
+df$Temp<-((df$Temp-32)*5/9)
+```
+
+```{r}
+df%>%group_by(Temp)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=Temp, y=mean.Sales)) +geom_bar(stat = "identity", width=0.2) 
+```
+```{r}
+df%>%group_by(Temp,month)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=Temp, y=mean.Sales,fill=month)) +geom_bar(stat = "identity", width=0.2) 
+```
+
+
+```{r}
+df%>%group_by(Type)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=Type, y=mean.Sales,fill=Type)) + geom_bar(stat = "identity", width=0.4)
+```
+```{r}
+df%>%group_by(size)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=size, y=mean.Sales)) + geom_point() + geom_smooth()
+```
+```{r}
+df%>%group_by(Holiday)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=Holiday, y=mean.Sales,fill=Holiday)) + geom_bar(stat = "identity", width=0.4)
+```
+```{r}
+df%>%group_by(week)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=week, y=mean.Sales,fill=week)) + geom_bar(stat= "identity", width=0.2)
+```
+```{r}
+df%>%group_by(month)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=month, y=mean.Sales,fill=month)) + geom_bar(stat= "identity", width=0.2)
+```
+```{r}
+df%>%group_by(store)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=store, y=mean.Sales,fill=store)) + geom_bar(stat = "identity", width=0.4)
+
+```
+
+```{r}
+df%>%group_by(year)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=year, y=mean.Sales,fill=year)) + geom_bar(stat= "identity", width=0.2)
+```
+```{r}
+df%>%group_by(store,size)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=store, y=mean.Sales,fill=size)) + geom_bar(stat = "identity", width=0.4)
+```
+```{r}
+df%>%group_by(store,Type)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=store, y=mean.Sales,fill=Type)) + geom_bar(stat = "identity", width=0.4)
+```
+```{r}
+df%>%group_by(Dept)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=Dept, y=mean.Sales)) + geom_bar(stat = "identity", width=0.4)
+```
+
+```{r}
+df%>%group_by(Dept,Type)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=Dept, y=mean.Sales,fill=Type)) + geom_bar(stat = "identity", width=0.4)
+```
+```{r}
+df%>%group_by(Fuel_Price)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=Fuel_Price, y=mean.Sales)) + geom_point()+geom_smooth()
+```
+```{r}
+df%>%group_by(CPI)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=CPI, y=mean.Sales)) + geom_point()+ ggtitle("Sales by CPI") +xlab("CPI") + ylab("sales") + theme(plot.title = element_text(hjust = 0.5))
+```
+#sales by unemployement 
+
+```{r}
+df%>%group_by(Unemployement)%>%summarise(mean.Sales=mean(Sales))%>%ggplot(aes(x=Unemployement, y=mean.Sales)) + geom_point()+geom_smooth(method=lm)+ ggtitle("Sales by uneployement") +
+  xlab("Unemployement rate") + ylab("sales") + theme(plot.title = element_text(hjust = 0.5))
+```
+```{r}
+prom<-data.frame(mean_Promo1=mean(df$Promotion1),mean_Promo2=mean(df$Promotion2),mean_Promo3=mean(df$Promotion3),mean_Promo4=mean(df$Promotion4),mean_Promo5=mean(df$Promotion5))
+prom
+prom_t = t(prom)
+prom_t
+barplot(prom_t[,1])
+```
+
